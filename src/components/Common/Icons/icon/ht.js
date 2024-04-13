@@ -1,7 +1,8 @@
 import React from 'react';
-
+import mixpanel from 'mixpanel-browser';
 const SvgHt = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} onClick={() => mixpanel.track("Icon Click", { "Icon Name": "Ht", "Purpose": "Unknown - Specify based on usage context", "Action": "Click" })}
+  >
     <defs>
       <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="ht_svg__c">
         <stop stopColor="#FFF" stopOpacity={0.5} offset="0%" />
@@ -19,14 +20,7 @@ const SvgHt = props => (
       <g transform="translate(1)">
         <use fill="#000" filter="url(#ht_svg__a)" xlinkHref="#ht_svg__b" />
         <use fill="#2A3069" fillRule="evenodd" xlinkHref="#ht_svg__b" />
-        <use
-          fill="url(#ht_svg__c)"
-          fillRule="evenodd"
-          style={{
-            mixBlendMode: 'soft-light',
-          }}
-          xlinkHref="#ht_svg__b"
-        />
+        <use fill="url(#ht_svg__c)" fillRule="evenodd" style={{ mixBlendMode: 'soft-light', }} xlinkHref="#ht_svg__b" />
         <circle strokeOpacity={0.097} stroke="#000" strokeLinejoin="square" cx={15} cy={15} r={14.5} />
       </g>
       <g fill="#FFF">
@@ -36,5 +30,4 @@ const SvgHt = props => (
     </g>
   </svg>
 );
-
 export default SvgHt;

@@ -1,7 +1,8 @@
 import React from 'react';
+import mixpanel from 'mixpanel-browser';
 
 const SvgOst = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} onClick={() => mixpanel.track("Play Video", { "Action": "Play", "Icon": "Play Button", "Location": "Common Icons" })} >
     <g fill="none">
       <circle cx={16} cy={16} r={16} fill="#34445B" />
       <g fill="#FFF">

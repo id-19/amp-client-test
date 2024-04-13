@@ -1,7 +1,8 @@
 import React from 'react';
+import mixpanel from 'mixpanel-browser';
 
 const SvgIotx = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} onClick={() => mixpanel.track("SVG Clicked", { "Icon": "Iotx", "Action": "Click", "Context": "Icons" })}>
     <defs>
       <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="iotx_svg__c">
         <stop stopColor="#FFF" stopOpacity={0.5} offset="0%" />
@@ -19,22 +20,13 @@ const SvgIotx = props => (
       <g transform="translate(1)">
         <use fill="#000" filter="url(#iotx_svg__a)" xlinkHref="#iotx_svg__b" />
         <use fill="#00D4D5" xlinkHref="#iotx_svg__b" />
-        <use
-          fill="url(#iotx_svg__c)"
-          style={{
-            mixBlendMode: 'soft-light',
-          }}
-          xlinkHref="#iotx_svg__b"
-        />
+        <use fill="url(#iotx_svg__c)" style={{ mixBlendMode: 'soft-light', }} xlinkHref="#iotx_svg__b" />
         <circle strokeOpacity={0.097} stroke="#000" strokeLinejoin="square" cx={15} cy={15} r={14.5} />
       </g>
       <g fill="#FFF">
         <path d="M16.31 5v5.002l4.342-2.497z" />
         <path opacity={0.9} d="M20.652 7.505v5.002l4.343-2.505z" />
-        <path
-          opacity={0.8}
-          d="M16.31 10.002v5.003l4.342-2.498zm4.342 2.505v5.002l4.343-2.504zm-4.342 2.498v5.002l4.342-2.498z"
-        />
+        <path opacity={0.8} d="M16.31 10.002v5.003l4.342-2.498zm4.342 2.505v5.002l4.343-2.504zm-4.342 2.498v5.002l4.342-2.498z" />
         <path d="M20.652 17.51v5.001l4.343-2.504z" />
         <path opacity={0.4} d="M5.084 9.834v5.002l4.343-2.505z" />
         <path opacity={0.2} d="M10.563 11.693v5.002l4.336-2.497z" />

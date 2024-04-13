@@ -2,6 +2,7 @@
 import React from 'react';
 import { createAndEncryptWallet } from '../../store/services/wallet';
 import CreateWalletModalRenderer from './CreateWalletModalRenderer';
+import mixpanel from 'mixpanel-browser'; // Assuming Mixpanel is installed and imported
 
 type Props = {
   visible: boolean,
@@ -50,12 +51,15 @@ class CreateWalletModal extends React.PureComponent<Props, State> {
         showEncryptionProgress: false,
       });
     }, 500);
+    mixpanel.track("Wallet Creation Cancelled"); // Mixpanel tracking
   };
 
   updateProgressBar = (percent: number) => {
     if (percent === 1) {
       this.setState({ encryptionPercentage: 1 });
-      setTimeout(() => { this.setState({ currentStep: 1 }); }, 1500);
+      setTimeout(() => {
+        this.setState({ currentStep: 1 });
+      }, 1500);
     } else if (percent > 0.75) {
       this.setState({ encryptionPercentage: 0.75 });
     } else if (percent > 0.5) {
@@ -68,10 +72,9 @@ class CreateWalletModal extends React.PureComponent<Props, State> {
   goToDownloadWallet = async () => {
     if (this.state.password) {
       this.setState({ showEncryptionProgress: true });
-      let { encryptedWallet, address } = await createAndEncryptWallet(this.state.password, percent =>
-        this.updateProgressBar(percent)
-      );
+      let { encryptedWallet, address } = await createAndEncryptWallet(this.state.password, percent => this.updateProgressBar(percent));
       this.setState({ address, encryptedWallet, passwordStatus: 'valid' });
+      mixpanel.track("Wallet Download Initiated"); // Mixpanel tracking
     } else {
       this.setState({ passwordStatus: 'invalid' });
     }
@@ -94,6 +97,10 @@ class CreateWalletModal extends React.PureComponent<Props, State> {
     const { address, password, encryptedWallet, storeWallet, storePrivateKey } = this.state;
     this.setState({ currentStep: 3, title: 'Logging you In' });
     walletCreated({ address, password, encryptedWallet, storeWallet, storePrivateKey });
+    mixpanel.track("Wallet Creation Completed", {
+      storeWallet: this.state.storeWallet,
+      storePrivateKey: this.state.storePrivateKey,
+    }); // Mixpanel tracking with properties
   };
 
   handleChange = ({ target }: SyntheticInputEvent<>) => {
@@ -122,6 +129,7 @@ class CreateWalletModal extends React.PureComponent<Props, State> {
       storeWallet,
       storePrivateKey,
     } = this.state;
+
     return (
       <CreateWalletModalRenderer
         visible={visible}

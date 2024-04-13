@@ -1,22 +1,13 @@
 // @flow
 import React from 'react';
 import Download from '@axetroy/react-download';
-import {
-  Button,
-  Checkbox,
-  Card,
-  FormGroup,
-  Icon,
-  InputGroup,
-  Intent,
-  Label,
-  ProgressBar,
-} from '@blueprintjs/core';
+import { Button, Checkbox, Card, FormGroup, Icon, InputGroup, Intent, Label, ProgressBar, } from '@blueprintjs/core';
 import Steps from 'rc-steps';
 import { OverlaySpinner } from '../Common'
 import styled from 'styled-components';
-
 import { Spring } from 'react-spring'
+import mixpanel from 'mixpanel-browser'; // Import Mixpanel
+mixpanel.init("YOUR_MIXPANEL_PROJECT_TOKEN"); // Initialize Mixpanel with your project token
 
 type Props = {
   address: string,
@@ -47,6 +38,7 @@ const intents = {
   valid: Intent.SUCCESS,
   incomplete: Intent.PRIMARY,
 };
+
 const inputStatuses = {
   password: {
     incomplete: '',
@@ -78,29 +70,45 @@ const CreateWalletFormRenderer = (props: Props) => {
     storePrivateKey,
   } = props;
 
+  const trackEvent = (eventName, properties = {}) => {
+    mixpanel.track(eventName, properties);
+  };
+
   const buttons = [
     {
       ok: 'Create Wallet',
       cancel: 'Cancel',
-      onOkClick: goToDownloadWallet,
+      onOkClick: () => {
+        trackEvent("Create Wallet Initiated");
+        goToDownloadWallet();
+      },
       onCancelClick: cancel,
     },
     {
       ok: 'I have downloaded my wallet',
       cancel: 'Go back',
-      onOkClick: goToComplete,
+      onOkClick: () => {
+        trackEvent("Wallet Downloaded");
+        goToComplete();
+      },
       onCancelClick: goBackToCreateWallet,
     },
     {
       ok: 'Complete & Login',
       cancel: 'Go back',
-      onOkClick: complete,
+      onOkClick: () => {
+        trackEvent("Wallet Creation Completed");
+        complete();
+      },
       onCancelClick: goBackToDownloadWallet,
     },
     {
       ok: 'Complete & Login',
       cancel: 'Go back',
-      onOkClick: complete,
+      onOkClick: () => {
+        trackEvent("Wallet Creation Completed");
+        complete();
+      },
       onCancelClick: goBackToDownloadWallet,
     },
   ];
@@ -112,7 +120,10 @@ const CreateWalletFormRenderer = (props: Props) => {
         showPassword={showPassword}
         passwordStatus={passwordStatus}
         handleChange={handleChange}
-        togglePasswordView={togglePasswordView}
+        togglePasswordView={() => {
+          trackEvent("Toggled Password Visibility");
+          togglePasswordView();
+        }}
         showEncryptionProgress={showEncryptionProgress}
         encryptionPercentage={encryptionPercentage}
       />
@@ -121,6 +132,7 @@ const CreateWalletFormRenderer = (props: Props) => {
       <WalletDownloadStep
         address={address}
         encryptedWallet={encryptedWallet}
+        onDownloadClick={() => trackEvent("Wallet Downloaded")}
       />
     ),
     '2': (
@@ -129,13 +141,21 @@ const CreateWalletFormRenderer = (props: Props) => {
         storeWallet={storeWallet}
         storePrivateKey={storePrivateKey}
         handleChange={handleChange}
+        onStoreWalletChange={() => {
+          trackEvent("Opted to Store Wallet");
+          handleChange();
+        }}
+        onStorePrivateKeyChange={() => {
+          trackEvent("Opted to Store Private Key");
+          handleChange();
+        }}
       />
     )
   };
+
   return (
     <Spring from={{ opacity: 0, marginLeft: -1000, marginRight: 1000 }} to={{ opacity: 1, marginLeft: 0, marginRight: 0 }}>
-    {props =>
-    <Card style={props}>
+      {props => <Card style={props}>
         <Steps current={currentStep}>
           <Steps.Step title="Choose password" />
           <Steps.Step title="Download Wallet" />
@@ -144,20 +164,10 @@ const CreateWalletFormRenderer = (props: Props) => {
         <OverlaySpinner visible={loading} transparent />
         {content[currentStep]}
         <CardFooterBox>
-          <Button
-            key="Previous"
-            text={buttons[currentStep].cancel}
-            onClick={buttons[currentStep].onCancelClick}
-          />
-          <Button
-            key="Next"
-            text={buttons[currentStep].ok}
-            intent={Intent.PRIMARY}
-            onClick={buttons[currentStep].onOkClick}
-          />
+          <Button key="Previous" text={buttons[currentStep].cancel} onClick={buttons[currentStep].onCancelClick} />
+          <Button key="Next" text={buttons[currentStep].ok} intent={Intent.PRIMARY} onClick={buttons[currentStep].onOkClick} />
         </CardFooterBox>
-    </Card>
-    }
+      </Card>}
     </Spring>
   );
 };
@@ -172,6 +182,7 @@ const WalletPasswordStep = props => {
     encryptionPercentage,
     passwordStatus,
   } = props;
+
   return (
     <div>
       <PasswordInputBox>
@@ -204,13 +215,14 @@ const WalletPasswordStep = props => {
 };
 
 const WalletDownloadStep = props => {
-  const { encryptedWallet, address } = props;
+  const { encryptedWallet, address, onDownloadClick } = props;
+
   return (
     <WalletDownloadBox>
       <Icon icon="tick-circle" iconSize={150} intent={Intent.SUCCESS} />
       <WalletDownloadHeader>Wallet successfully encrypted</WalletDownloadHeader>
       <Download file={`${address}.json`} content={encryptedWallet}>
-        <Button intent={Intent.PRIMARY} minimal>
+        <Button intent={Intent.PRIMARY} minimal onClick={onDownloadClick}>
           Download Wallet
         </Button>
       </Download>
@@ -219,7 +231,8 @@ const WalletDownloadStep = props => {
 };
 
 const WalletInformationStep = props => {
-  const { address, handleChange, storeWallet, storePrivateKey } = props;
+  const { address, handleChange, storeWallet, storePrivateKey, onStoreWalletChange, onStorePrivateKeyChange } = props;
+
   return (
     <div>
       <WalletInformationBox>
@@ -228,10 +241,10 @@ const WalletInformationStep = props => {
       </WalletInformationBox>
       <WalletStorageSettingsBox>
         <FormGroup helperText="Learn more about different options here">
-          <Checkbox name="storeWallet" checked={storeWallet} onChange={handleChange}>
+          <Checkbox name="storeWallet" checked={storeWallet} onChange={onStoreWalletChange}>
             <strong>Save encrypted wallet in local storage</strong>
           </Checkbox>
-          <Checkbox name="storePrivateKey" checked={storePrivateKey} onChange={handleChange}>
+          <Checkbox name="storePrivateKey" checked={storePrivateKey} onChange={onStorePrivateKeyChange}>
             <strong>Save private key in session storage </strong>
           </Checkbox>
         </FormGroup>

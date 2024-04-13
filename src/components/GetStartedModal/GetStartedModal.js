@@ -1,8 +1,8 @@
 // @flow
 import React from 'react'
 import GetStartedModalRenderer from './GetStartedModalRenderer'
-
 import { setShowHelpModalSetting } from '../../store/services/storage'
+import mixpanel from 'mixpanel-browser'; // Assuming Mixpanel is already set up elsewhere in the project
 
 type Props = {
   ETHAddress: string,
@@ -27,7 +27,6 @@ type State = {
   showHelpModalChecked: boolean,
 }
 
-
 class GetStartedModal extends React.PureComponent<Props, State> {
   state = {
     step: '1',
@@ -43,21 +42,16 @@ class GetStartedModal extends React.PureComponent<Props, State> {
 
   goToFirstStep = () => {
     this.setState({ step: '1' })
+    mixpanel.track("Go To First Step"); // Tracking event for going to the first step
   }
 
   goToSecondStep = () => {
-    const {
-      ETHBalance,
-      WETHBalance,
-      WETHAllowance
-    } = this.props
-
+    const { ETHBalance, WETHBalance, WETHAllowance } = this.props
     if (ETHBalance > 0 && WETHBalance > 0 && WETHAllowance > 0) {
       console.log('here')
       this.setState({ step: '3' })
       return
     }
-
     this.setState({ step: '2' })
   }
 
@@ -72,21 +66,22 @@ class GetStartedModal extends React.PureComponent<Props, State> {
         convertFraction: convertFraction,
         convertAmount: ETHBalance * convertFraction / 100,
       }
-    })
+    });
   };
 
   toggleShowHelpModalCheckBox = () => {
     this.setState({ showHelpModalChecked: !this.state.showHelpModalChecked })
+    mixpanel.track("Toggle Help Modal"); // Tracking event for toggling the help modal checkbox
   }
 
   handleChangeTab = (tab: string) => {
     this.setState({ currentTab: tab })
+    mixpanel.track("Change Tab", { Tab: tab }); // Tracking event for changing tabs
   }
 
   handleClose = () => {
     let { closeHelpModal } = this.props
     let { showHelpModalChecked } = this.state
-
     setShowHelpModalSetting(!showHelpModalChecked)
     closeHelpModal()
   }
@@ -94,19 +89,18 @@ class GetStartedModal extends React.PureComponent<Props, State> {
   handleConvertETH = () => {
     let { convertAmount } = this.state
     this.props.convertETH(convertAmount)
+    mixpanel.track("Convert ETH"); // Tracking event for converting ETH
   }
 
   handleApproveWETH = () => {
     this.props.approveWETH()
+    mixpanel.track("Approve WETH"); // Tracking event for approving WETH
   }
 
   checkTransactionsPending = () => {
     const { approveTxState, convertTxState } = this.props
-
-    //the form shows pending transactions if any of the transactions is pending
     if (approveTxState.approveTxStatus === 'sent') return true
     if (convertTxState.convertTxStatus === 'sent') return true
-
     return false
   }
 
@@ -114,47 +108,20 @@ class GetStartedModal extends React.PureComponent<Props, State> {
     const { approveTxState, convertTxState } = this.props
     const { approveTxStatus } = approveTxState
     const { convertTxStatus } = convertTxState
-
-    //case where we only have an approval tx
     if (approveTxStatus === 'confirmed' && convertTxStatus === 'incomplete') return true
-
-    //case where we only have an conversion tx
     if (approveTxStatus === 'incomplete' && convertTxStatus === 'confirmed') return true
-
-    //case where we have both an approval and a conversion tx
     if (approveTxStatus === 'confirmed' && convertTxStatus === 'confirmed') return true
-
-    //otherwise transactions are either pending or not sent yet
     return false
   }
 
   render() {
-    const {
-      step,
-      convertAmount,
-      convertFraction,
-      showHelpModalChecked,
-      currentTab
-     } = this.state
-
-    const {
-      ETHAddress,
-      ETHBalance,
-      WETHBalance,
-      WETHAllowance,
-      approveTxState,
-      convertTxState,
-      redirectToTradingPage,
-      redirectToFAQPage,
-      isOpen,
-    } = this.props
-
+    const { step, convertAmount, convertFraction, showHelpModalChecked, currentTab } = this.state
+    const { ETHAddress, ETHBalance, WETHBalance, WETHAllowance, approveTxState, convertTxState, redirectToTradingPage, redirectToFAQPage, isOpen, } = this.props
     const userHasETH = ETHBalance > 0
     const userHasWETH = WETHBalance > 0
     const userHasApprovedWETH = WETHAllowance > 0
     const { approveTxStatus, approveTxHash } = approveTxState
     const { convertTxStatus, convertTxHash } = convertTxState
-
     const transactionsPending = this.checkTransactionsPending()
     const transactionsComplete = this.checkTransactionsComplete()
 

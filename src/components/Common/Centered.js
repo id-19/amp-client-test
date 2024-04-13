@@ -1,16 +1,19 @@
 import React from 'react';
 import styled from 'styled-components';
-
-import {
-  space,
-  width,
-  height,
-  color
-} from 'styled-system'
+import { space, width, height, color } from 'styled-system';
+import mixpanel from 'mixpanel-browser';
 
 const Centered = props => {
+  const handleInteraction = () => {
+    mixpanel.track("Content Interaction", {
+      "Content Type": "Unknown",
+      "Interaction Type": "Click or View",
+      "Location": "Centered Component"
+    });
+  };
+
   return (
-    <Wrapper {...props}>
+    <Wrapper {...props} onClick={handleInteraction}>
       {props.children}
     </Wrapper>
   );

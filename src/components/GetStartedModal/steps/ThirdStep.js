@@ -4,8 +4,8 @@ import styled from 'styled-components'
 import { Button, Checkbox, Intent } from '@blueprintjs/core'
 import { ModalFooter, ModalBody, FlexColumn } from '../../Common'
 import { DISCORD_URL } from '../../../config/urls'
-
 import { Spring } from 'react-spring'
+import mixpanel from 'mixpanel-browser'
 
 type Props = {
   step: string,
@@ -41,55 +41,64 @@ const Thirdstep = (props: Props) => {
     redirectToFAQPage,
     showHelpModalChecked,
     toggleShowHelpModalCheckBox,
-    goToFirstStep
+    goToFirstStep,
   } = props
+
+  // Event tracking functions
+  const trackButtonClick = (purpose) => {
+    mixpanel.track("Button Click", { "Button Purpose": purpose });
+  };
+  const trackCheckboxToggle = (state) => {
+    mixpanel.track("Checkbox Toggle", { "Checkbox State": state ? "Checked" : "Unchecked" });
+  };
+  const trackLinkClick = (purpose) => {
+    mixpanel.track("Link Click", { "Link Purpose": purpose });
+  };
 
   return (
     <Spring from={{ opacity: 0 }} to={{ opacity: 1 }} >
-    {animation =>
-      <FlexColumn width="100%" style={animation}>
+      {animation => <FlexColumn width="100%" style={animation}>
         <ModalBody>
           <Box>
-            <h2>You have everything you need to start trading!</h2> 
+            <h2>You have everything you need to start trading!</h2>
             <h2>Choose what to do next:</h2>
             <ButtonGroupBox>
               <ButtonBox>
-                <Button intent={Intent.PRIMARY} onClick={redirectToTradingPage}>
+                <Button intent={Intent.PRIMARY} onClick={() => { redirectToTradingPage(); trackButtonClick("View Trading Page"); }}>
                   View Trading page
                 </Button>
               </ButtonBox>
               <ButtonBox>
-                <Button intent={Intent.PRIMARY} onClick={handleClose}>
+                <Button intent={Intent.PRIMARY} onClick={() => { handleClose(); trackButtonClick("View Portfolio"); }}>
                   View Portfolio
                 </Button>
               </ButtonBox>
               <ButtonBox>
-                <Button intent={Intent.PRIMARY} onClick={redirectToFAQPage}>
+                <Button intent={Intent.PRIMARY} onClick={() => { redirectToFAQPage(); trackButtonClick("Frequently Asked Questions"); }}>
                   Frequently asked questions
                 </Button>
               </ButtonBox>
               <ButtonBox>
-                <Button intent={Intent.PRIMARY} onClick={goToFirstStep}>
+                <Button intent={Intent.PRIMARY} onClick={() => { goToFirstStep(); trackButtonClick("Go Back to Introduction Modal"); }}>
                   Go back to introduction modal
                 </Button>
               </ButtonBox>
             </ButtonGroupBox>
             <ContactLinksBox>
               <p>Contact us at support@proofsuite.com</p>
-              <p>Join our <a href={DISCORD_URL}>Discord</a> channel</p>
+              <p>Join our <a href={DISCORD_URL} onClick={() => trackLinkClick("Join Discord Channel")}>Discord</a> channel</p>
             </ContactLinksBox>
           </Box>
         </ModalBody>
         <ModalFooter>
           <FooterBox>
-            <Checkbox checked={showHelpModalChecked} onClick={toggleShowHelpModalCheckBox}>
+            <Checkbox checked={showHelpModalChecked} onChange={(e) => { toggleShowHelpModalCheckBox(e.target.checked); trackCheckboxToggle(e.target.checked); }}>
               Do not show again
             </Checkbox>
             <Button onClick={handleClose}>Close</Button>
           </FooterBox>
         </ModalFooter>
-      </FlexColumn>
-    }
+      </FlexColumn>}
     </Spring>
   )
 }

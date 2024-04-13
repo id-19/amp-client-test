@@ -1,7 +1,9 @@
 import React from 'react';
+import mixpanel from 'mixpanel-browser';
+mixpanel.init("YOUR_MIXPANEL_TOKEN");
 
 const SvgBtch = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} onClick={() => mixpanel.track("Icon Interaction", { "Icon Name": "Batch Processing Icon", "Context": "Assumed Context Where Icon is Used" })}>
     <defs>
       <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="btch_svg__c">
         <stop stopColor="#FFF" stopOpacity={0.5} offset="0%" />
@@ -19,13 +21,7 @@ const SvgBtch = props => (
       <g transform="translate(1)" fillRule="nonzero">
         <use fill="#000" filter="url(#btch_svg__a)" xlinkHref="#btch_svg__b" />
         <use fill="#4700C2" xlinkHref="#btch_svg__b" />
-        <use
-          fill="url(#btch_svg__c)"
-          style={{
-            mixBlendMode: 'soft-light',
-          }}
-          xlinkHref="#btch_svg__b"
-        />
+        <use fill="url(#btch_svg__c)" style={{ mixBlendMode: 'soft-light', }} xlinkHref="#btch_svg__b" />
         <circle strokeOpacity={0.097} stroke="#000" strokeLinejoin="square" cx={15} cy={15} r={14.5} />
       </g>
       <g fill="#FFF">

@@ -1,9 +1,14 @@
 //@flow
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { Box } from './Box'
+import { Box } from './Box';
+import mixpanel from 'mixpanel-browser';
 
 const CenteredMessage = (props: { message: string }) => {
+  useEffect(() => {
+    mixpanel.track("Message Displayed", { "Message Content": props.message });
+  }, [props.message]);
+
   return (
     <Wrapper>
       <Box p={3}>

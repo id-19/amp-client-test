@@ -2,6 +2,7 @@
 import React from 'react';
 import { createAndEncryptWallet } from '../../store/services/wallet';
 import CreateWalletFormRenderer from './CreateWalletFormRenderer';
+import mixpanel from 'mixpanel-browser'; // Import Mixpanel for event tracking
 
 type Props = {
   showLoginMethods: void => void,
@@ -56,7 +57,9 @@ class CreateWalletForm extends React.PureComponent<Props, State> {
   updateProgressBar = (percent: number) => {
     if (percent === 1) {
       this.setState({ encryptionPercentage: 1 });
-      setTimeout(() => { this.setState({ currentStep: 1 }); }, 1500);
+      setTimeout(() => {
+        this.setState({ currentStep: 1 });
+      }, 1500);
     } else if (percent > 0.75) {
       this.setState({ encryptionPercentage: 0.75 });
     } else if (percent > 0.5) {
@@ -64,15 +67,17 @@ class CreateWalletForm extends React.PureComponent<Props, State> {
     } else if (percent > 0.25) {
       this.setState({ encryptionPercentage: 0.25 });
     }
+    // Track progress event with Mixpanel
+    mixpanel.track("Wallet Creation Progress", { "Progress Percentage": percent });
   };
 
   goToDownloadWallet = async () => {
     if (this.state.password) {
       this.setState({ showEncryptionProgress: true });
-      let { encryptedWallet, address } = await createAndEncryptWallet(this.state.password, percent =>
-        this.updateProgressBar(percent)
-      );
+      let { encryptedWallet, address } = await createAndEncryptWallet(this.state.password, percent => this.updateProgressBar(percent) );
       this.setState({ address, encryptedWallet, passwordStatus: 'valid' });
+      // Track wallet creation start event with Mixpanel
+      mixpanel.track("Wallet Creation Started");
     } else {
       this.setState({ passwordStatus: 'invalid' });
     }
@@ -95,6 +100,8 @@ class CreateWalletForm extends React.PureComponent<Props, State> {
     const { address, password, encryptedWallet, storeWallet, storePrivateKey } = this.state;
     this.setState({ loading: true, title: 'Logging you In' });
     walletCreated({ address, password, encryptedWallet, storeWallet, storePrivateKey });
+    // Track wallet creation completed event with Mixpanel
+    mixpanel.track("Wallet Creation Completed");
   };
 
   handleChange = ({ target }: SyntheticInputEvent<>) => {
@@ -106,25 +113,13 @@ class CreateWalletForm extends React.PureComponent<Props, State> {
     this.setState(function(prevState: State) {
       return { showPassword: !prevState.showPassword };
     });
+    // Track toggled password view event with Mixpanel
+    mixpanel.track("Toggled Password View");
   };
 
   render() {
     const { showLoginMethods } = this.props;
-    const {
-      title,
-      currentStep,
-      password,
-      showPassword,
-      showEncryptionProgress,
-      encryptionPercentage,
-      address,
-      encryptedWallet,
-      passwordStatus,
-      storeWallet,
-      storePrivateKey,
-      loading
-    } = this.state;
-
+    const { title, currentStep, password, showPassword, showEncryptionProgress, encryptionPercentage, address, encryptedWallet, passwordStatus, storeWallet, storePrivateKey, loading } = this.state;
     return (
       <CreateWalletFormRenderer
         showLoginMethods={showLoginMethods}

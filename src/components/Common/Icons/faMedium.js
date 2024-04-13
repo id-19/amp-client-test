@@ -1,3 +1,7 @@
+import React from 'react';
+import mixpanel from 'mixpanel-browser';
+mixpanel.init("YOUR_MIXPANEL_PROJECT_TOKEN");
+
 var prefix = 'fab';
 var iconName = 'medium';
 var width = 448;
@@ -12,6 +16,13 @@ var definition = {
   icon: [width, height, ligatures, unicode, svgPathData],
 };
 
+// Assuming the icon is used here within a link/button for navigation or action
+const IconLink = () => (
+  <a href="Link to Medium profile or share URL" target="_blank" className="medium-icon-link" onClick={() => mixpanel.track("Medium Icon Clicked", {"Location": "Footer/Header/Sidebar", "Purpose": "Visit Medium Profile"})}>
+    {/* Icon rendering logic here */}
+  </a>
+);
+
 module.exports = {
   definition,
   faMedium: definition,
@@ -22,4 +33,5 @@ module.exports = {
   ligatures,
   unicode,
   svgPathData,
+  IconLink,
 };

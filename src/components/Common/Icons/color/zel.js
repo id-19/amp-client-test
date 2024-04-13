@@ -1,15 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import mixpanel from 'mixpanel-browser';
 
-const SvgZel = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
-    <g fill="none" fillRule="evenodd">
-      <circle cx={16} cy={16} r={16} fill="#183C87" fillRule="nonzero" />
-      <path
-        fill="#FFF"
-        d="M5 15.615l4.495-2.538 4.494 2.538v4.847L9.495 23 5 20.462v-4.847zm13.01 0l4.495-2.538L27 15.615v4.847L22.505 23l-4.494-2.538v-4.847zm-.472 4.21l-1.577.867-1.499-.823V15.23l-4.1-2.316V11.23L15.961 8l5.598 3.23v1.73l-4.021 2.27v4.596z"
-      />
-    </g>
-  </svg>
-);
+const SvgZel = props => {
+  useEffect(() => {
+    mixpanel.track("Icon Rendered", {
+      "Icon Name": "Zel",
+      "Width": props.width || 64, // Dynamic value based on props or default
+      "Height": props.height || 64, // Dynamic value based on props or default
+      "Color": "Blue" // Static value as per event properties
+    });
+  }, []); // Empty dependency array means this effect runs once on mount
+
+  return (
+    <svg width={props.width || 64} height={props.height || 64} {...props}>
+      <g fill="none" fillRule="evenodd">
+        <circle cx={16} cy={16} r={16} fill="#183C87" fillRule="nonzero" />
+        <path fill="#FFF" d="M5 15.615l4.495-2.538 4.494 2.538v4.847L9.495 23 5 20.462v-4.847zm13.01 0l4.495-2.538L27 15.615v4.847L22.505 23l-4.494-2.538v-4.847zm-.472 4.21l-1.577.867-1.499-.823V15.23l-4.1-2.316V11.23L15.961 8l5.598 3.23v1.73l-4.021 2.27v4.596z" />
+      </g>
+    </svg>
+  );
+};
 
 export default SvgZel;

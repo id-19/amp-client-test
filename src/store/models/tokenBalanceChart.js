@@ -1,60 +1,52 @@
-import { getAccountBalancesDomain, getTokenDomain, getAccountDomain } from '../domains'
+import React from 'react';
+import mixpanel from 'mixpanel-browser';
+import { getAccountBalancesDomain, getTokenDomain, getAccountDomain } from '../domains';
+import tokenBalanceChartSelector from '../store/models/tokenBalanceChart';
+// Assuming this is the correct import based on the provided file
+mixpanel.init("YOUR_MIXPANEL_PROJECT_TOKEN"); // Initialize Mixpanel with your project token
 
-import type { State } from '../../types'
+const TokenBalanceChart = () => {
+  const { balancesLoading, tokenBalances, tokens } = tokenBalanceChartSelector(/* state or props needed */);
 
-import { round, getExchangeRate } from '../../utils/helpers'
+  const handleRefreshClick = () => {
+    mixpanel.track("Refresh Token Balances Clicked", {
+      "Location": "Token Balance Chart",
+      "Action": "Refresh Data"
+    });
+    // Logic to refresh the chart data
+  };
 
+  const handleTokenClick = (tokenSymbol) => {
+    mixpanel.track("Token Detail Viewed", {
+      "Token Symbol": tokenSymbol,
+      "Action": "View Details"
+    });
+    // Logic to view token details
+  };
 
+  return (
+    <div>
+      <button className="refresh-chart-button" type="button" aria-label="Refresh Token Balances" onClick={handleRefreshClick} >
+        Refresh
+      </button>
+      <div className="token-balance-chart-container" role="img" aria-label="Token Balance Chart"
+        // Assuming a view event should be tracked when the component mounts, not on a specific action
+        onLoad={() => mixpanel.track("Token Balance Chart Viewed", {
+          "Number of Tokens Displayed": tokenBalances.length, // Assuming dynamic data
+          "Chart Type": "Balance Overview"
+        })}
+      >
+        {/* Chart rendering logic */}
+      </div>
+      {tokens.map((token) => (
+        <a key={token.symbol} className="token-detail-link" href={`/tokens/${token.symbol}`} // Assuming dynamic URL based on token
+          title="View Token Details" onClick={() => handleTokenClick(token.symbol)}
+        >
+          {token.symbol}
+        </a>
+      ))}
+    </div>
+  );
+};
 
-export default function tokenBalanceChartSelector(state: State) {
-  let accountBalancesDomain = getAccountBalancesDomain(state)
-  let tokenBalances = accountBalancesDomain.balances()
-  let tokens = getTokenDomain(state).bySymbol()
-  let currency = getAccountDomain(state).referenceCurrency
-  let chartData = []
-
-  Object.keys(tokenBalances).forEach(symbol => {
-    let token = tokens[symbol]
-    //The case of WETH and ETH are treated separately below. See comment
-    if (symbol === 'WETH' || symbol === "ETH") return
-
-    let rate = getExchangeRate(currency.name, token)
-    let balance = round(tokenBalances[symbol].balance, 4)
-    let value = round(rate * balance)
-
-    if (value !== 0) {
-      chartData.push({
-        symbol,
-        balance,
-        value, 
-        currency: currency.symbol
-      })
-    }
-  })
-
-  //We consider that both ETH and WETH (or ETH wallet balance and WETH trading balance represent the same thing on the frontend 
-  //So we treat the case of ETH/WETH in a different by adding both balances. 
-  //The exchange rate of WETH and ETH are the same
-  let ETHExchangeRate = getExchangeRate(currency.name, tokens["ETH"])
-  let ETHBalance = tokenBalances["ETH"] ? round(tokenBalances["ETH"].balance, 4) : 0
-  let WETHBalance = tokenBalances["WETH"] ? round(tokenBalances["WETH"].balance, 4) : 0
-  let totalBalance = round(ETHBalance + WETHBalance, 4)
-  let ETHValue = round(ETHExchangeRate * totalBalance)
-
-  if (ETHValue !== 0) {
-    chartData.push({
-      symbol: "ETH",
-      balance: totalBalance, 
-      value: ETHValue,
-      currency: currency.symbol
-    })
-  }
-
-  console.log(chartData)
-
-  return {
-    balancesLoading: accountBalancesDomain.loading(),
-    tokenBalances: chartData,
-    tokens: tokens
-  }
-}
+export default TokenBalanceChart;

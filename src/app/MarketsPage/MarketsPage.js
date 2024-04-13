@@ -1,5 +1,6 @@
 // @flow
 import React from 'react'
+import Mixpanel from 'mixpanel-browser'; // Import Mixpanel
 import MarketsPageRenderer from './MarketsPageRenderer'
 
 export type Props = {
@@ -21,26 +22,23 @@ class MarketsPage extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     const { queryMarketData, appIsLoaded } = this.props
-
     if (appIsLoaded) queryMarketData()
   }
 
   toggleMarketStatistics = () => {
-    this.setState({ showMarketStatistics: !this.state.showMarketStatistics })
+    const newVisibility = !this.state.showMarketStatistics;
+    this.setState({ showMarketStatistics: newVisibility })
+    // Mixpanel event tracking
+    Mixpanel.track("Toggle Market Statistics", {
+      "Market Statistics Visible": newVisibility ? "True" : "False",
+      "User Authenticated": this.props.authenticated ? "True" : "False",
+    });
   }
 
   render() {
-    const {
-      loading,
-      appIsLoaded
-    } = this.props
-
-    const {
-      showMarketStatistics
-    } = this.state
-
+    const { loading, appIsLoaded } = this.props
+    const { showMarketStatistics } = this.state
     if (!appIsLoaded) return null
-
     return (
       <MarketsPageRenderer
         loading={loading}
