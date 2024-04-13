@@ -1,13 +1,15 @@
 import React from 'react';
+import Mixpanel from 'mixpanel';
 
 const SvgHight = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} onClick={() => Mixpanel.track("Icon Click", {
+    "Icon Name": "SvgHight",
+    "Action": "Sign Up",
+    "Context": "Used in Sign Up Button"
+  })}>
     <g fill="none">
       <circle cx={16} cy={16} r={16} fill="#117FC0" />
-      <path
-        d="M26.496 10.332l-8.455 13.94h-5.042l3.875-6.397h-3.851l-4.49 7.404a11.905 11.905 0 0 0 17.96-14.94l.003-.007zM19.114 7.83l-3.67 6.04H19.3l4.274-7.049a11.905 11.905 0 0 0-17.96 14.94l8.452-13.93h5.047z"
-        fill="#FFF"
-      />
+      <path d="M26.496 10.332l-8.455 13.94h-5.042l3.875-6.397h-3.851l-4.49 7.404a11.905 11.905 0 0 0 17.96-14.94l.003-.007zM19.114 7.83l-3.67 6.04H19.3l4.274-7.049a11.905 11.905 0 0 0-17.96 14.94l8.452-13.93h5.047z" fill="#FFF" />
     </g>
   </svg>
 );

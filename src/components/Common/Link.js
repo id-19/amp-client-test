@@ -1,5 +1,6 @@
-// @flow 
-import React from 'react'
+// @flow
+import React from 'react';
+import mixpanel from 'mixpanel-browser'; // Importing Mixpanel
 
 type Props = {
   url: string,
@@ -7,11 +8,13 @@ type Props = {
 }
 
 const Link = ({ url, children }: Props) => {
+  // Event tracking function
+  const trackLinkClick = () => {
+    mixpanel.track("Link Clicked", { "URL": url });
+  }
+
   return (
-    <a href={url} 
-       rel="noopener noreferrer"
-       target="_blank" 
-    >
+    <a href={url} rel="noopener noreferrer" target="_blank" onClick={trackLinkClick}>
       {children}
     </a>
   )

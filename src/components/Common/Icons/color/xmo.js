@@ -1,7 +1,8 @@
 import React from 'react';
+import mixpanel from 'mixpanel-browser';
 
 const SvgXmo = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} onClick={() => mixpanel.track("Sign Up Icon Clicked", { "Icon": "SvgXmo", "Action": "Sign Up Initiated", "Location": "Common Icons" })}>
     <g fill="none">
       <circle cx={16} cy={16} r={16} fill="#F60" />
       <g fill="#FFF">

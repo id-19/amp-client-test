@@ -1,9 +1,18 @@
 //@flow
-import React from 'react';
+import React, { useEffect } from 'react'; // Import useEffect
 import styled from 'styled-components';
 import { Spinner } from '@blueprintjs/core';
+import mixpanel from 'mixpanel-browser'; // Import Mixpanel
 
 const SpinnerContainer = () => {
+  useEffect(() => {
+    // Track the event when the component mounts
+    mixpanel.track("Spinner Displayed", {
+      "Intent": "Primary",
+      "Size": "Large"
+    });
+  }, []); // Empty dependency array means this effect runs once on mount
+
   return (
     <Wrapper>
       <Spinner large intent="primary" />

@@ -5,16 +5,13 @@ import type { State, ThunkAction } from '../../types';
 
 export default function logoutPageSelector(state: State) {
   let { authenticated } = getAccountDomain(state)
-  
-  return {
-    authenticated,
-  };
+  return { authenticated, };
 }
 
 export function logout(): ThunkAction {
   return async (dispatch, getState, { mixpanel }) => {
-    mixpanel.track('logout');
-
+    // Enhanced tracking with Mixpanel
+    mixpanel.track('logout', {});
     dispatch(actionCreators.logout());
   };
 }

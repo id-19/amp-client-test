@@ -1,34 +1,33 @@
-// @flow
-import { getWalletsDomain } from '../domains';
-import * as actionCreators from '../actions/createWallet';
-import { saveEncryptedWalletInLocalStorage, savePrivateKeyInSessionStorage } from '../services/wallet';
+// Assuming this is part of the React component file that includes the create wallet button
+import React from 'react';
+import { mixpanel } from 'path-to-mixpanel-setup'; // Adjust the import path as necessary
+import { createWallet } from '../store/models/createWalletModal'; // Adjust the import path as necessary
 
-import type { State, ThunkAction } from '../../types';
-
-type CreateWalletParams = {
-  address: string,
-  encryptedWallet: string,
-  password: string,
-  storeWallet: boolean,
-  storePrivateKey: boolean,
-};
-
-export default function createWalletModalSelector(state: State) {
-  return getWalletsDomain(state);
-}
-
-export function createWallet(params: CreateWalletParams): ThunkAction {
-  return async (dispatch, getState, { mixpanel }) => {
-    mixpanel.track('login-page/create-wallet');
-
+class CreateWalletButton extends React.Component {
+  handleCreateWalletClick = async () => {
+    const { address, encryptedWallet, password, storeWallet, storePrivateKey } = this.props; // Assuming these props are passed to the component
+    const eventProperties = {
+      "Address Provided": address ? "Yes" : "No",
+      "Encrypted Wallet Saved": storeWallet ? "LocalStorage" : storePrivateKey ? "SessionStorage" : "None",
+      "Error": "No" // Default to "No", will be updated in catch block if an error occurs
+    };
     try {
-      let { address, encryptedWallet, password, storeWallet, storePrivateKey } = params;
-      dispatch(actionCreators.createWallet(address, encryptedWallet));
-
-      if (storeWallet) saveEncryptedWalletInLocalStorage(address, encryptedWallet);
-      if (storePrivateKey) await savePrivateKeyInSessionStorage({ address, password, encryptedWallet });
+      await createWallet({ address, encryptedWallet, password, storeWallet, storePrivateKey });
+      mixpanel.track('login-page/create-wallet', eventProperties);
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
+      eventProperties["Error"] = "Yes";
+      mixpanel.track('login-page/create-wallet', eventProperties);
     }
   };
+
+  render() {
+    return (
+      <button className="create-wallet-button" type="submit" form="create-wallet-form" onClick={this.handleCreateWalletClick} >
+        Create Wallet
+      </button>
+    );
+  }
 }
+
+export default CreateWalletButton;

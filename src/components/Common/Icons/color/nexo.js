@@ -1,7 +1,15 @@
 import React from 'react';
+// Import Mixpanel for event tracking
+import mixpanel from 'mixpanel-browser';
 
 const SvgNexo = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} onClick={() => {
+    // Track the event with Mixpanel
+    mixpanel.track("Icon Clicked", {
+      "Icon Name": "Nexo",
+      "Context": "Common Icons Color"
+    });
+  }} fill="#1A4199" >
     <g fill="none">
       <circle cx={16} cy={16} r={16} fill="#1A4199" />
       <g fill="#FFF">

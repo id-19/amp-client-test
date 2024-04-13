@@ -1,7 +1,9 @@
 import React from 'react';
+import Mixpanel from 'mixpanel-browser'; // Assuming Mixpanel is installed and configured
 
 const SvgBsd = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} onClick={() => Mixpanel.track("Icon Clicked", {"Icon Name": "BSD", "Context": "Unknown"})} // Added onClick event handler for Mixpanel tracking
+  >
     <defs>
       <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="bsd_svg__c">
         <stop stopColor="#FFF" stopOpacity={0.5} offset="0%" />
@@ -19,13 +21,7 @@ const SvgBsd = props => (
       <g transform="translate(1)">
         <use fill="#000" filter="url(#bsd_svg__a)" xlinkHref="#bsd_svg__b" />
         <use fill="#000" xlinkHref="#bsd_svg__b" />
-        <use
-          fill="url(#bsd_svg__c)"
-          style={{
-            mixBlendMode: 'soft-light',
-          }}
-          xlinkHref="#bsd_svg__b"
-        />
+        <use fill="url(#bsd_svg__c)" style={{ mixBlendMode: 'soft-light', }} xlinkHref="#bsd_svg__b" />
         <circle strokeOpacity={0.097} stroke="#000" strokeLinejoin="square" cx={15} cy={15} r={14.5} />
       </g>
       <path d="M27 14.2H5l12.8-4.3L19.6 4 27 14.2zM5.1 15.6h21.8l-12.8 4.2-1.8 6.1-7.2-10.3z" fill="#FFF" />

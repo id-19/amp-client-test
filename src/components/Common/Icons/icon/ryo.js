@@ -1,7 +1,14 @@
 import React from 'react';
+import mixpanel from 'mixpanel-browser';
 
 const SvgRyo = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} onClick={() => {
+    mixpanel.track("Icon Interaction", {
+      "Icon Name": "Ryo",
+      "Action": "Click",
+      "Context": "Assuming it's wrapped in a button for 'View More Info'"
+    });
+  }}>
     <defs>
       <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="ryo_svg__c">
         <stop stopColor="#FFF" stopOpacity={0.5} offset="0%" />
@@ -19,13 +26,7 @@ const SvgRyo = props => (
       <g transform="translate(1)">
         <use fill="#000" filter="url(#ryo_svg__a)" xlinkHref="#ryo_svg__b" />
         <use fill="#3D58B0" xlinkHref="#ryo_svg__b" />
-        <use
-          fill="url(#ryo_svg__c)"
-          style={{
-            mixBlendMode: 'soft-light',
-          }}
-          xlinkHref="#ryo_svg__b"
-        />
+        <use fill="url(#ryo_svg__c)" style={{ mixBlendMode: 'soft-light' }} xlinkHref="#ryo_svg__b" />
         <circle strokeOpacity={0.097} stroke="#000" strokeLinejoin="square" cx={15} cy={15} r={14.5} />
       </g>
       <g fill="#FFF">

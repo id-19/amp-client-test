@@ -1,8 +1,9 @@
 //@flow
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import Colors from './Colors';
 import { Spinner } from '@blueprintjs/core';
+import mixpanel from 'mixpanel-browser';
 
 type Props = {
   visible: boolean,
@@ -10,6 +11,16 @@ type Props = {
 };
 
 const SpinnerContainer = ({ transparent, visible }: Props) => {
+  useEffect(() => {
+    // Only track the event when the spinner is visible
+    if (visible) {
+      mixpanel.track("Spinner Displayed", {
+        "Transparent": transparent ? "Yes" : "No", // Convert boolean to a more readable format
+        "Context": "Loading"
+      });
+    }
+  }, [visible, transparent]); // This effect depends on changes to visible and transparent props
+
   return (
     <Wrapper visible={visible} transparent={transparent}>
       <Spinner large intent="primary" />

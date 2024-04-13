@@ -2,7 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import TxNotification from '../../TxNotification';
 import { Icon } from '@blueprintjs/core';
-import { ModalBody } from '../../Common'
+import { ModalBody } from '../../Common';
+import Mixpanel from 'mixpanel-browser'; // Import Mixpanel
 
 const ConfirmFormRenderer = (props: Props) => {
   const {
@@ -24,9 +25,17 @@ const ConfirmFormRenderer = (props: Props) => {
     },
     convert: {
       reverted: 'Convert Ether Transaction Failed',
-      sent: 'Converting Ether  ...',
+      sent: 'Converting Ether ...',
       confirmed: 'Convert Ether Transaction Successful',
     },
+  };
+
+  const trackTransactionStatus = (status, symbol, type) => {
+    Mixpanel.track("Transaction Status", {
+      "Status": status,
+      "Token Symbol": symbol,
+      "Transaction Type": type
+    });
   };
 
   switch (transactionStatus) {
@@ -35,25 +44,15 @@ const ConfirmFormRenderer = (props: Props) => {
         <ModalBody>
           <ConfirmBox>
             <ConfirmIconBox>
-              <Icon icon="error" intent="danger" iconSize={200} />
+              <Icon icon="error" intent="danger" iconSize={200} onClick={() => trackTransactionStatus('failed', token.symbol, 'allow')} />
             </ConfirmIconBox>
             <h4>There was a problem with your transaction. But no worries, your funds are safe</h4>
           </ConfirmBox>
           <TxNotificationBox>
-            <TxNotification
-              status={allowTxStatus}
-              hash={allowTxHash}
-              receipt={allowTxReceipt}
-              title={notificationBoxTitles.allow[allowTxStatus]}
-            />
+            <TxNotification status={allowTxStatus} hash={allowTxHash} receipt={allowTxReceipt} title={notificationBoxTitles.allow[allowTxStatus]} />
           </TxNotificationBox>
           <TxNotificationBox>
-            <TxNotification
-              status={convertTxStatus}
-              hash={convertTxHash}
-              receipt={convertTxReceipt}
-              title={notificationBoxTitles.convert[convertTxStatus]}
-            />
+            <TxNotification status={convertTxStatus} hash={convertTxHash} receipt={convertTxReceipt} title={notificationBoxTitles.convert[convertTxStatus]} />
           </TxNotificationBox>
         </ModalBody>
       );
@@ -64,20 +63,10 @@ const ConfirmFormRenderer = (props: Props) => {
             <h3>Transactions have been sent!</h3>
           </ConfirmBox>
           <TxNotificationBox>
-            <TxNotification
-              status={allowTxStatus}
-              hash={allowTxHash}
-              receipt={allowTxReceipt}
-              title={notificationBoxTitles.allow[allowTxStatus]}
-            />
+            <TxNotification status={allowTxStatus} hash={allowTxHash} receipt={allowTxReceipt} title={notificationBoxTitles.allow[allowTxStatus]} />
           </TxNotificationBox>
           <TxNotificationBox>
-            <TxNotification
-              status={convertTxStatus}
-              hash={convertTxHash}
-              receipt={convertTxReceipt}
-              title={notificationBoxTitles.convert[convertTxStatus]}
-            />
+            <TxNotification status={convertTxStatus} hash={convertTxHash} receipt={convertTxReceipt} title={notificationBoxTitles.convert[convertTxStatus]} />
           </TxNotificationBox>
         </ModalBody>
       );
@@ -86,25 +75,15 @@ const ConfirmFormRenderer = (props: Props) => {
         <ModalBody>
           <ConfirmBox>
             <ConfirmIconBox>
-              <Icon icon="tick-circle" intent="success" iconSize={200} />
+              <Icon icon="tick-circle" intent="success" iconSize={200} onClick={() => trackTransactionStatus('confirmed', token.symbol, 'convert')} />
             </ConfirmIconBox>
             <h3>Your {token.symbol} has been successfully deposited. You can now start trading</h3>
           </ConfirmBox>
           <TxNotificationBox>
-            <TxNotification
-              status={allowTxStatus}
-              hash={allowTxHash}
-              receipt={allowTxReceipt}
-              title={notificationBoxTitles.allow[allowTxStatus]}
-            />
+            <TxNotification status={allowTxStatus} hash={allowTxHash} receipt={allowTxReceipt} title={notificationBoxTitles.allow[allowTxStatus]} />
           </TxNotificationBox>
           <TxNotificationBox>
-            <TxNotification
-              status={convertTxStatus}
-              hash={convertTxHash}
-              receipt={convertTxReceipt}
-              title={notificationBoxTitles.convert[convertTxStatus]}
-            />
+            <TxNotification status={convertTxStatus} hash={convertTxHash} receipt={convertTxReceipt} title={notificationBoxTitles.convert[convertTxStatus]} />
           </TxNotificationBox>
         </ModalBody>
       );

@@ -1,7 +1,8 @@
 import React from 'react';
+import Mixpanel from 'mixpanel-browser'; // Corrected import for Mixpanel
 
 const SvgHuc = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} onClick={() => Mixpanel.track("Icon Interaction", { "Action": "Click", "Icon Name": "Huc", "Context": "Assuming it's clickable and meaningful to track" })}>
     <defs>
       <linearGradient id="huc_svg__c" x1="50%" x2="50%" y1="0%" y2="100%">
         <stop offset="0%" stopColor="#FFF" stopOpacity={0.5} />
@@ -24,13 +25,7 @@ const SvgHuc = props => (
     <g fill="none" fillRule="evenodd">
       <use fill="#000" filter="url(#huc_svg__a)" xlinkHref="#huc_svg__b" />
       <use fill="#FFC018" xlinkHref="#huc_svg__b" />
-      <use
-        fill="url(#huc_svg__c)"
-        style={{
-          mixBlendMode: 'soft-light',
-        }}
-        xlinkHref="#huc_svg__b"
-      />
+      <use fill="url(#huc_svg__c)" style={{ mixBlendMode: 'soft-light', }} xlinkHref="#huc_svg__b" />
       <circle cx={16} cy={15} r={14.5} stroke="#000" strokeOpacity={0.097} />
       <use fill="#000" filter="url(#huc_svg__d)" xlinkHref="#huc_svg__e" />
       <use fill="#FFF" xlinkHref="#huc_svg__e" />

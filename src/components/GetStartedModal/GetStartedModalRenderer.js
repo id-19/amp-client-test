@@ -1,13 +1,13 @@
 // @flow
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import Modal from '../Modal';
 import FirstStep from './steps/FirstStep';
 import SecondStep from './steps/SecondStep';
 import ThirdStep from './steps/ThirdStep';
-
 import { FlexRow, Box } from '../Common'
 import { Spring } from 'react-spring'
+import mixpanel from 'mixpanel-browser';
 
 type Props = {
   step: string,
@@ -41,11 +41,45 @@ type Props = {
   handleChangeTab: string => void,
 };
 
+const trackEvent = (eventName, properties) => {
+  mixpanel.track(eventName, properties);
+};
+
 const GetStartedModalRenderer = (props: Props) => {
-  const { handleClose, isOpen } = props;
+  const { handleClose, isOpen, step } = props;
+
+  useEffect(() => {
+    const beforeClose = () => {
+      trackEvent("Modal Closed", {
+        "Reason": "User clicked close",
+        "Step at Close": step,
+      });
+    };
+    window.addEventListener('beforeunload', beforeClose);
+    return () => {
+      window.removeEventListener('beforeunload', beforeClose);
+    };
+  }, [step]);
+
+  useEffect(() => {
+    // Track the current step when it changes
+    if (step === '1' || step === '2' || step === '3') {
+      const completed = props.transactionsComplete ? "True" : "False";
+      trackEvent(`Onboarding Step ${step}`, {
+        "Step": step,
+        "Completed": completed,
+      });
+    }
+  }, [step, props.transactionsComplete]);
 
   return (
-    <Modal title="Get Started" icon="info-sign" isOpen={isOpen} onClose={handleClose}>
+    <Modal title="Get Started" icon="info-sign" isOpen={isOpen} onClose={() => {
+      handleClose();
+      trackEvent("Modal Closed", {
+        "Reason": "User clicked close",
+        "Step at Close": step,
+      });
+    }}>
       <ModalContent>
         <Stepper {...props} />
       </ModalContent>
@@ -54,16 +88,26 @@ const GetStartedModalRenderer = (props: Props) => {
 };
 
 const Stepper = (props: Props) => {
-  switch (props.step) {
+  const { step } = props;
+  let StepComponent = null;
+  switch (step) {
     case '1':
-      return <FirstStep {...props} />;
+      StepComponent = <FirstStep {...props} />;
+      break;
     case '2':
-      return <SecondStep {...props} />;
+      StepComponent = <SecondStep {...props} />;
+      break;
     case '3':
-      return <ThirdStep {...props} />;
+      StepComponent = <ThirdStep {...props} />;
+      break;
     default:
-      return null;
+      StepComponent = null;
   }
+  return (
+    <>
+      {StepComponent}
+    </>
+  );
 };
 
 // 🚀📈 💶💵💴🔥🌊🛸🍪🧞🧙🐲

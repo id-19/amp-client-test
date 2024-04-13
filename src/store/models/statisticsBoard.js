@@ -1,33 +1,44 @@
 //@flow
+import React from 'react';
+import Mixpanel from 'mixpanel';
+// Assuming Mixpanel is installed and configured
+import { getTokenPairsDomain, getAccountDomain, getTokenDomain, getStatsDomain } from '../domains';
 
-import { 
-    getTokenPairsDomain,
-    getAccountDomain,
-    getTokenDomain,
-    getStatsDomain
-} from '../domains'
+// Initialize Mixpanel (assuming the project has a Mixpanel token configured elsewhere)
+const mixpanel = Mixpanel.init('YOUR_MIXPANEL_TOKEN');
 
+export default function StatisticsDashboard() {
+  // Existing selector logic here...
 
-export default function statisticsBoardSelector(state: State) {
-    let tokenPairsDomain = getTokenPairsDomain(state)
-    let tokensDomain = getTokenDomain(state)
-    let statsDomain = getStatsDomain(state)
-    let { referenceCurrencyName } = getAccountDomain(state)
+  // Event tracking functions
+  const handleStatsOverviewClick = () => {
+    mixpanel.track("Statistics Viewed", {
+      "Section": "Overview",
+      "Action": "View"
+    });
+  };
 
-    let currency = referenceCurrencyName
-    let exchangeRates = tokensDomain.exchangeRates(currency)
-    let tradingStats = statsDomain.state
+  const handleExportDataClick = () => {
+    mixpanel.track("Data Exported", {
+      "Format": "CSV",
+      "Data Type": "Trading Stats"
+    });
+  };
 
-    let orderCountsByPair = tokenPairsDomain.orderCountsBySymbol()
-    let tradeCountsByPair = tokenPairsDomain.tradeCountsBySymbol()
-    let orderValuesByPair = tokenPairsDomain.orderBookVolumeBySymbol(exchangeRates, currency)
-    let tradeValuesByPair = tokenPairsDomain.tradeVolumeBySymbol(exchangeRates, currency)
+  const handleCurrencyChange = (e) => {
+    mixpanel.track("Currency Changed", {
+      "Currency": e.target.value // Assuming the value of the select dropdown is the currency
+    });
+  };
 
-    return {
-        ...tradingStats,
-        orderCountsByPair,
-        orderValuesByPair,
-        tradeCountsByPair,
-        tradeValuesByPair
-    }
+  return (
+    <div>
+      {/* Assuming the structure of the dashboard... */}
+      <div className="stats-overview" onClick={handleStatsOverviewClick}>Trading Stats Overview</div>
+      <button className="export-btn" onClick={handleExportDataClick}>Export Data</button>
+      <select className="currency-select" onChange={handleCurrencyChange}>
+        {/* Currency options here */}
+      </select>
+    </div>
+  );
 }

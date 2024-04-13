@@ -1,5 +1,6 @@
 import React from 'react';
-
+import mixpanel from 'mixpanel-browser';
+mixpanel.init("YOUR_MIXPANEL_PROJECT_TOKEN");
 const SvgGbyte = props => (
   <svg width={props.width || 64} height={props.height || 64} {...props}>
     <defs>
@@ -25,20 +26,14 @@ const SvgGbyte = props => (
       <g fillRule="nonzero">
         <use fill="#000" filter="url(#gbyte_svg__a)" xlinkHref="#gbyte_svg__b" />
         <use fill="#302C2C" fillRule="evenodd" xlinkHref="#gbyte_svg__b" />
-        <use
-          fill="url(#gbyte_svg__c)"
-          fillRule="evenodd"
-          style={{
-            mixBlendMode: 'soft-light',
-          }}
-          xlinkHref="#gbyte_svg__b"
-        />
+        <use fill="url(#gbyte_svg__c)" fillRule="evenodd" style={{ mixBlendMode: 'soft-light', }} xlinkHref="#gbyte_svg__b" />
         <circle cx={16} cy={15} r={14.5} stroke="#000" strokeOpacity={0.097} />
       </g>
       <use fill="#000" filter="url(#gbyte_svg__d)" xlinkHref="#gbyte_svg__e" />
       <use fill="#FFF" xlinkHref="#gbyte_svg__e" />
+      {/* Simulated button for tracking */}
+      <rect x="5" y="5" width="54" height="54" fill="transparent" cursor="pointer" onClick={() => mixpanel.track("Learn More Clicked", { "Context": "Gbyte Information", "Icon": "Gbyte" })} />
     </g>
   </svg>
 );
-
 export default SvgGbyte;

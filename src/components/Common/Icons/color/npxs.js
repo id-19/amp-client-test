@@ -1,7 +1,8 @@
 import React from 'react';
+import mixpanel from 'mixpanel-browser';
 
 const SvgNpxs = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} onClick={() => mixpanel.track("Icon Clicked", {"Icon Name": "SvgNpxs", "Context": "Unknown - Specify where used"})} fill="#F5D100">
     <g fill="none">
       <circle cx={16} cy={16} r={16} fill="#F5D100" />
       <g fill="#FFF">

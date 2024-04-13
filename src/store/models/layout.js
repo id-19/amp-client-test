@@ -1,79 +1,55 @@
-import * as actionCreators from '../actions/layout'
-import * as notifierActionCreators from '../actions/app'
+// Assuming a LoginComponent.jsx for the login button
+import React from 'react';
+import mixpanel from 'mixpanel-browser';
+mixpanel.init('YOUR_MIXPANEL_PROJECT_TOKEN');
 
-import {
-  getAccountDomain,
-  getAccountBalancesDomain
- } from '../domains'
-
-import { fiatCurrencies, pricedTokens } from '../../config'
-
-export default function createSelector(state) {
-  let { authenticated, address, currentBlock, referenceCurrency } = getAccountDomain(state)
-  let accountBalancesDomain = getAccountBalancesDomain(state)
-
-  let ETHBalance = accountBalancesDomain.etherBalance()
-  let WETHBalance = accountBalancesDomain.tokenBalance('WETH')
-  let WETHAllowance = accountBalancesDomain.tokenAllowance('WETH')
-  let accountLoading = !(ETHBalance && WETHBalance && WETHAllowance)
-  let location = state.router.location.pathname
-
-  let referenceCurrencies = fiatCurrencies.map((currency, i) => {
-    return {
-      rank: i,
-      name: currency.name,
-      symbol: currency.symbol
-    }
-  })
-
-  let currentReferenceCurrency = referenceCurrencies.filter(currency => currency.name === referenceCurrency.name)[0]
-
-  return {
-    ETHBalance,
-    WETHBalance,
-    WETHAllowance,
-    authenticated,
-    address,
-    accountLoading,
-    currentBlock,
-    currentReferenceCurrency,
-    referenceCurrencies,
-    location
+const LoginComponent = () => {
+  const handleLogin = () => {
+    // Logic for handling login
+    mixpanel.track("User Logged In", { "Authenticated": "True" });
   };
-}
 
+  return (
+    <button type="submit" className="login-button" onClick={handleLogin}>
+      Login
+    </button>
+  );
+};
 
-export function queryAppData(): ThunkAction {
-  return async (dispatch, getState, { api, provider }) => {
-    try {    
-    let [ tokens, pairs ] = await Promise.all([
-      api.getTokens(),
-      api.fetchPairs()
-    ])
+// Assuming an AccountBalanceComponent.jsx for displaying account balance
+import React, { useEffect, useState } from 'react';
+import mixpanel from 'mixpanel-browser';
+mixpanel.init('YOUR_MIXPANEL_PROJECT_TOKEN');
 
-    let tokenSymbols = pricedTokens
-    let currencySymbols = ['USD', 'EUR', 'JPY']
-    let exchangeRates = await api.fetchExchangeRates(tokenSymbols, currencySymbols)
+const AccountBalanceComponent = ({ balance }) => {
+  useEffect(() => {
+    if(balance) {
+      mixpanel.track("Account Balance Fetched", { "Currency": "ETH", "Balance": balance });
+    }
+  }, [balance]);
 
-    tokens = tokens.map(token => {
-      return {
-        ...token,
-        USDRate: exchangeRates[token.symbol] ? exchangeRates[token.symbol].USD : 0,
-        EURRate: exchangeRates[token.symbol] ? exchangeRates[token.symbol].EUR : 0,
-        JPYRate: exchangeRates[token.symbol] ? exchangeRates[token.symbol].JPY : 0,
-      }
-    })
+  return (
+    <div className="account-balance">
+      Your Balance: {balance} ETH
+    </div>
+  );
+};
 
-    dispatch(actionCreators.updateAppData(tokens, pairs))
-  } catch (e) {
-    console.log(e)
-    dispatch(notifierActionCreators.addErrorNotification({ message: e.message }))
-  }
-}
-}
+// Assuming an ExchangeRateComponent.jsx for viewing exchange rates
+import React, { useEffect } from 'react';
+import mixpanel from 'mixpanel-browser';
+mixpanel.init('YOUR_MIXPANEL_PROJECT_TOKEN');
 
-export function createProvider(): ThunkAction {
-  return async (dispatch, getState, { provider }) => {
-    provider.createConnection()
-  }
-}
+const ExchangeRateComponent = ({ rates }) => {
+  useEffect(() => {
+    if(rates) {
+      mixpanel.track("Exchange Rate Viewed", { "Currencies": "USD, EUR, JPY", "Rate": rates });
+    }
+  }, [rates]);
+
+  return (
+    <div className="exchange-rate">
+      Exchange Rates: {JSON.stringify(rates)}
+    </div>
+  );
+};

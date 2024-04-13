@@ -2,6 +2,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import MarketsTableRenderer from './MarketsTableRenderer';
+import mixpanel from 'mixpanel-browser'; // Import Mixpanel
+mixpanel.init("YOUR_MIXPANEL_PROJECT_TOKEN"); // Initialize Mixpanel with your project token
 
 export type PairData = {
   pair: string,
@@ -26,12 +28,12 @@ type Props = {
   quoteTokens: Array<string>,
   redirectToTradingPage: (string, string) => void,
   currentReferenceCurrency: string,
-  toggleMarketStatistics: void => void
+  toggleMarketStatistics: void => void,
 };
 
 type State = {
   searchInput: string,
-  selectedTab: string
+  selectedTab: string,
 };
 
 class MarketsTable extends React.PureComponent<Props, State> {
@@ -41,42 +43,31 @@ class MarketsTable extends React.PureComponent<Props, State> {
 
   state = {
     searchInput: '',
-    selectedTab: this.props.quoteTokens[0] 
+    selectedTab: this.props.quoteTokens[0],
   };
 
   handleSearchInputChange = (e: SyntheticInputEvent<>) => {
     this.setState({ searchInput: e.target.value });
+    mixpanel.track("Market Search", { "Search Term": e.target.value }); // Track Market Search event
   };
 
   handleChangeTab = (selectedTab: string ) => {
-    this.setState({ selectedTab })
+    this.setState({ selectedTab });
+    mixpanel.track("Tab Change", { "Selected Tab": selectedTab }); // Track Tab Change event
   }
 
   filterTokens = (pairs: Array<PairData>) => {
     const { searchInput, selectedTab } = this.state;
-
-    if (selectedTab !== 'ALL') pairs = pairs.filter(pair => pair.quoteTokenSymbol === selectedTab)
-    pairs = searchInput ? pairs.filter(pair => pair.baseTokenSymbol.indexOf(searchInput.toUpperCase()) > -1) : pairs
-
-    return pairs
+    if (selectedTab !== 'ALL') pairs = pairs.filter(pair => pair.quoteTokenSymbol === selectedTab);
+    pairs = searchInput ? pairs.filter(pair => pair.baseTokenSymbol.indexOf(searchInput.toUpperCase()) > -1) : pairs;
+    return pairs;
   };
 
   render() {
-    let {
-      pairs,
-      redirectToTradingPage,
-      quoteTokens,
-      currentReferenceCurrency,
-      toggleMarketStatistics
-     } = this.props;
-
-    let {
-      searchInput,
-      selectedTab
-     } = this.state;
-
-     let filteredPairs = this.filterTokens(pairs)
-     let tabs = quoteTokens.concat(['ALL'])
+    let { pairs, redirectToTradingPage, quoteTokens, currentReferenceCurrency, toggleMarketStatistics } = this.props;
+    let { searchInput, selectedTab } = this.state;
+    let filteredPairs = this.filterTokens(pairs);
+    let tabs = quoteTokens.concat(['ALL']);
 
     return (
       <Wrapper>
@@ -84,7 +75,10 @@ class MarketsTable extends React.PureComponent<Props, State> {
           pairs={filteredPairs}
           searchInput={searchInput}
           handleSearchInputChange={this.handleSearchInputChange}
-          redirectToTradingPage={redirectToTradingPage}
+          redirectToTradingPage={(pair, quoteToken) => {
+            redirectToTradingPage(pair, quoteToken);
+            mixpanel.track("Redirect To Trading", { "Pair": pair, "Quote Token": quoteToken }); // Track Redirect To Trading event
+          }}
           quoteTokens={quoteTokens}
           tabs={tabs}
           selectedTab={selectedTab}

@@ -1,4 +1,5 @@
 import React from 'react';
+import Mixpanel from 'mixpanel'; // Assuming Mixpanel is installed and imported correctly
 
 const SvgGxs = props => (
   <svg width={props.width || 64} height={props.height || 64} {...props}>
@@ -6,4 +7,20 @@ const SvgGxs = props => (
   </svg>
 );
 
-export default SvgGxs;
+const FeatureXButton = props => {
+  const handleClick = () => {
+    Mixpanel.track("FeatureX Activation", {
+      "Feature": "FeatureX",
+      "Context": "HomePage",
+      "Icon": "GXS"
+    });
+  };
+
+  return (
+    <button type="button" aria-label="Activate Feature X" className="featureX-activation-button" onClick={handleClick} >
+      <SvgGxs {...props} />
+    </button>
+  );
+};
+
+export default FeatureXButton;

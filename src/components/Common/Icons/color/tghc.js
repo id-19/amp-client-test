@@ -1,7 +1,8 @@
 import React from 'react';
+import mixpanel from 'mixpanel-browser';
 
 const SvgTghc = props => (
-  <svg width={props.width || 64} height={props.height || 64} {...props}>
+  <svg width={props.width || 64} height={props.height || 64} {...props} fill="none" onClick={() => mixpanel.track("Icon Clicked", {"Icon Name": "Tghc", "Context": "Assumed to be part of a clickable element"})} role="button" tabIndex="0" >
     <g fill="none">
       <circle cx={16} cy={16} r={16} fill="#434247" />
       <g fill="#FFF">
